@@ -11,6 +11,8 @@
 from __future__ import division
 import random
 import math
+import numpy as np
+from operator import itemgetter
 
 # --- COST FUNCTION ------------------------------------------------------------+
 
@@ -33,6 +35,8 @@ class Particle:
         self.pos_best_i = []          # best position individual
         self.fitness_best_i = -1      # best fitness individual
         self.fitness_i = -1           # fitness individual
+        self.neighbors = []           # list of other particles ordered by proximity
+        self.pos_best_l = []          # best position locally
 
         for i in range(0, num_dimensions):
             self.velocity_i.append(random.uniform(-1, 1))
@@ -48,7 +52,7 @@ class Particle:
             self.fitness_best_i = self.fitness_i
 
     # update new particle velocity
-    def update_velocity(self, pos_best_g):
+    def update_velocity(self, pos_best_g, num_neighbors):
         # constant inertia weight (how much to weigh the previous velocity)
         w = 0.5
         c1 = 1        # cognitive constant
@@ -59,7 +63,10 @@ class Particle:
             r2 = random.random()
 
             vel_cognitive = c1 * r1 * (self.pos_best_i[i] - self.position_i[i])
-            vel_social = c2*r2*(pos_best_g[i] - self.position_i[i])
+            if num_neighbors >= 0:
+                vel_social = c2*r2*(self.pos_best_l[i] - self.position_i[i])
+            else:
+                vel_social = c2*r2*(pos_best_g[i] - self.position_i[i])
             self.velocity_i[i] = w*self.velocity_i[i]+vel_cognitive+vel_social
 
     # update the particle position based off new velocity updates
@@ -75,9 +82,23 @@ class Particle:
             if self.position_i[i] < bounds[i][0]:
                 self.position_i[i] = bounds[i][0]
 
+    def euclidian_distance(self, other_particle):
+        coord_self = np.array(self.position_i)
+        coord_other = np.array(other_particle.position_i)
+
+        distance = np.linalg.norm(coord_self - coord_other)
+        return distance
+    
+    def find_best_local(self, num_neighbors):
+        local_best_fitness = self.fitness_i
+        self.pos_best_l = self.position_i
+        for i in range(num_neighbors):
+            if self.neighbors[i]['particle'].fitness_i > local_best_fitness:
+                self.pos_best_l = self.neighbors[i]['particle'].position_i
+
 
 class PSO():
-    def __init__(self, costFunc, bounds, num_particles, maxiter):
+    def __init__(self, costFunc, bounds, num_particles, maxiter, num_neighbors=-1):
         global num_dimensions
         num_dimensions = len(bounds)
 
@@ -85,9 +106,10 @@ class PSO():
         self.bounds = bounds
         self.num_particles = num_particles
         self.maxiter = maxiter
-    
+        self.num_neighbors = num_neighbors
+
     def run(self):
-        
+
         fitness_best_g = -1               # best fitness for group
         pos_best_g = []                   # best position for group
 
@@ -95,12 +117,12 @@ class PSO():
         swarm = []
         for i in range(0, self.num_particles):
             # posição inicial aleatória
-            initial = [random.uniform(a, b) for (a, b) in self.bounds]        
+            initial = [random.uniform(a, b) for (a, b) in self.bounds]
             swarm.append(Particle(initial))
 
         # begin optimization loop
         for i in range(self.maxiter):
-    
+
             # cycle through particles in swarm and evaluate fitness
             for j in range(0, self.num_particles):
                 swarm[j].evaluate(self.costFunc)
@@ -110,12 +132,25 @@ class PSO():
                     pos_best_g = list(swarm[j].position_i)
                     fitness_best_g = float(swarm[j].fitness_i)
 
+                # find ordered list of neighbors (by distance from closest to farthest
+                if self.num_neighbors >= 0:
+                    for k in range(0, self.num_particles):
+                        if swarm[j] is not swarm[k]:
+                            distance = swarm[j].euclidian_distance(swarm[k])
+                            swarm[j].neighbors.append(
+                                {'particle': swarm[k], 'distance': distance})
+
+                    swarm[j].neighbors.sort(key=itemgetter('distance'))
+                    swarm[j].find_best_local(self.num_neighbors)
+             
+
             # cycle through swarm and update velocities and position
             for j in range(0, self.num_particles):
-                swarm[j].update_velocity(pos_best_g)
+                swarm[j].update_velocity(pos_best_g, self.num_neighbors)
                 swarm[j].update_position(self.bounds)
 
         return fitness_best_g
+
 
 if __name__ == "__PSO__":
     main()
@@ -126,8 +161,6 @@ if __name__ == "__PSO__":
 #bounds = [(-10, 10), (-10, 10), (-10, 10), (-1, 1)]
 #pso = PSO(func1, bounds, num_particles=15, maxiter=30)
 
-#pso.run()
+# pso.run()
 
 # --- END ----------------------------------------------------------------------+
-
-
