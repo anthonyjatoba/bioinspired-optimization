@@ -90,10 +90,10 @@ class Particle:
         return distance
     
     def find_best_local(self, num_neighbors):
-        local_best_fitness = self.fitness_i
+        fitness_best_l = self.fitness_i
         self.pos_best_l = self.position_i
-        for i in range(num_neighbors):
-            if self.neighbors[i]['particle'].fitness_i > local_best_fitness:
+        for i in range(0, num_neighbors):
+            if self.neighbors[i]['particle'].fitness_i > fitness_best_l:
                 self.pos_best_l = self.neighbors[i]['particle'].position_i
 
 
@@ -112,6 +112,7 @@ class PSO():
 
         fitness_best_g = -1               # best fitness for group
         pos_best_g = []                   # best position for group
+        iter_best_fitness = []            # array of best fitness of each iteration
 
         # establish the swarm
         swarm = []
@@ -122,7 +123,7 @@ class PSO():
 
         # begin optimization loop
         for i in range(self.maxiter):
-
+            
             # cycle through particles in swarm and evaluate fitness
             for j in range(0, self.num_particles):
                 swarm[j].evaluate(self.costFunc)
@@ -143,13 +144,13 @@ class PSO():
                     swarm[j].neighbors.sort(key=itemgetter('distance'))
                     swarm[j].find_best_local(self.num_neighbors)
              
-
+            iter_best_fitness.append(fitness_best_g)
             # cycle through swarm and update velocities and position
             for j in range(0, self.num_particles):
                 swarm[j].update_velocity(pos_best_g, self.num_neighbors)
                 swarm[j].update_position(self.bounds)
 
-        return fitness_best_g
+        return fitness_best_g, iter_best_fitness
 
 
 if __name__ == "__PSO__":
