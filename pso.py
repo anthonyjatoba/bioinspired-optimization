@@ -57,7 +57,7 @@ class Particle:
         w = 0.5
         c1 = 1        # cognitive constant
         c2 = 2        # social constant
-
+        
         for i in range(0, num_dimensions):
             r1 = random.random()
             r2 = random.random()
@@ -81,7 +81,8 @@ class Particle:
             # adjust minimum position if necessary
             if self.position_i[i] < bounds[i][0]:
                 self.position_i[i] = bounds[i][0]
-
+    
+    # calculate euclidian distance between 2 particles
     def euclidian_distance(self, other_particle):
         coord_self = np.array(self.position_i)
         coord_other = np.array(other_particle.position_i)
@@ -89,13 +90,13 @@ class Particle:
         distance = np.linalg.norm(coord_self - coord_other)
         return distance
     
+    # find best position locally, using neighbors (local topology only)
     def find_best_local(self, num_neighbors):
         fitness_best_l = self.fitness_i
         self.pos_best_l = self.position_i
         for i in range(0, num_neighbors):
-            if self.neighbors[i]['particle'].fitness_i > fitness_best_l:
+            if self.neighbors[i]['particle'].fitness_i < fitness_best_l:
                 self.pos_best_l = self.neighbors[i]['particle'].position_i
-
 
 class PSO():
     def __init__(self, costFunc, bounds, num_particles, maxiter, num_neighbors=-1):
@@ -143,8 +144,10 @@ class PSO():
 
                     swarm[j].neighbors.sort(key=itemgetter('distance'))
                     swarm[j].find_best_local(self.num_neighbors)
-             
+            
+            # save best fitnesses by iteration
             iter_best_fitness.append(fitness_best_g)
+            
             # cycle through swarm and update velocities and position
             for j in range(0, self.num_particles):
                 swarm[j].update_velocity(pos_best_g, self.num_neighbors)
