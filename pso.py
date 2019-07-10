@@ -29,7 +29,7 @@ def func1(x):
 
 
 class Particle:
-    def __init__(self, x0):
+    def __init__(self, x0, inertia):
         self.position_i = []          # particle position
         self.velocity_i = []          # particle velocity
         self.pos_best_i = []          # best position individual
@@ -37,6 +37,7 @@ class Particle:
         self.fitness_i = -1           # fitness individual
         self.neighbors = []           # list of other particles ordered by proximity
         self.pos_best_l = []          # best position locally
+        self.inertia = inertia        # particle inertia value
 
         for i in range(0, num_dimensions):
             self.velocity_i.append(random.uniform(-1, 1))
@@ -54,9 +55,9 @@ class Particle:
     # update new particle velocity
     def update_velocity(self, pos_best_g, num_neighbors):
         # constant inertia weight (how much to weigh the previous velocity)
-        w = 0.5
-        c1 = 1        # cognitive constant
-        c2 = 2        # social constant
+        w = self.inertia
+        c1 = 2.1        # cognitive constant
+        c2 = 2.1        # social constant
         
         for i in range(0, num_dimensions):
             r1 = random.random()
@@ -99,7 +100,7 @@ class Particle:
                 self.pos_best_l = self.neighbors[i]['particle'].position_i
 
 class PSO():
-    def __init__(self, costFunc, bounds, num_particles, maxiter, num_neighbors=-1):
+    def __init__(self, costFunc, bounds, num_particles=50, maxiter=100, num_neighbors=-1,inertia=0.5):
         global num_dimensions
         num_dimensions = len(bounds)
 
@@ -108,19 +109,20 @@ class PSO():
         self.num_particles = num_particles
         self.maxiter = maxiter
         self.num_neighbors = num_neighbors
+        self.inertia = inertia
 
     def run(self):
 
         fitness_best_g = -1               # best fitness for group
         pos_best_g = []                   # best position for group
         iter_best_fitness = []            # array of best fitness of each iteration
-
+   
         # establish the swarm
         swarm = []
         for i in range(0, self.num_particles):
             # posição inicial aleatória
             initial = [random.uniform(a, b) for (a, b) in self.bounds]
-            swarm.append(Particle(initial))
+            swarm.append(Particle(initial,self.inertia))
 
         # begin optimization loop
         for i in range(self.maxiter):
