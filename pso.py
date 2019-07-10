@@ -29,7 +29,7 @@ def func1(x):
 
 
 class Particle:
-    def __init__(self, x0, inertia):
+    def __init__(self, x0, inertia,constriction):
         self.position_i = []          # particle position
         self.velocity_i = []          # particle velocity
         self.pos_best_i = []          # best position individual
@@ -38,6 +38,7 @@ class Particle:
         self.neighbors = []           # list of other particles ordered by proximity
         self.pos_best_l = []          # best position locally
         self.inertia = inertia        # particle inertia value
+        self.constriction = constriction #1 if using constriction factor
 
         for i in range(0, num_dimensions):
             self.velocity_i.append(random.uniform(-1, 1))
@@ -55,21 +56,26 @@ class Particle:
     # update new particle velocity
     def update_velocity(self, pos_best_g, num_neighbors):
         # constant inertia weight (how much to weigh the previous velocity)
-        w = self.inertia
+        w = self.inertia #
         c1 = 2.1        # cognitive constant
         c2 = 2.1        # social constant
+        phi = c1+c2
+        k = 2/(np.absolute(2-phi-np.sqrt(phi**2 - 4*phi)))
         
         for i in range(0, num_dimensions):
             r1 = random.random()
             r2 = random.random()
-
             vel_cognitive = c1 * r1 * (self.pos_best_i[i] - self.position_i[i])
             if num_neighbors >= 0:
                 vel_social = c2*r2*(self.pos_best_l[i] - self.position_i[i])
             else:
                 vel_social = c2*r2*(pos_best_g[i] - self.position_i[i])
-            self.velocity_i[i] = w*self.velocity_i[i]+vel_cognitive+vel_social
-
+            if self.constriction == 1:
+                self.velocity_i[i] = k*(self.velocity_i[i]+vel_cognitive+vel_social)
+            else:
+                self.velocity_i[i] = w*self.velocity_i[i]+vel_cognitive+vel_social
+             
+            
     # update the particle position based off new velocity updates
     def update_position(self, bounds):
         for i in range(0, num_dimensions):
@@ -100,7 +106,7 @@ class Particle:
                 self.pos_best_l = self.neighbors[i]['particle'].position_i
 
 class PSO():
-    def __init__(self, costFunc, bounds, num_particles=50, maxiter=100, num_neighbors=-1,inertia=0.5):
+    def __init__(self, costFunc, bounds, num_particles=50, maxiter=100, num_neighbors=-1,inertia=0.5,constriction=0):
         global num_dimensions
         num_dimensions = len(bounds)
 
@@ -110,6 +116,7 @@ class PSO():
         self.maxiter = maxiter
         self.num_neighbors = num_neighbors
         self.inertia = inertia
+        self.constriction = constriction
 
     def run(self):
 
@@ -122,7 +129,7 @@ class PSO():
         for i in range(0, self.num_particles):
             # posição inicial aleatória
             initial = [random.uniform(a, b) for (a, b) in self.bounds]
-            swarm.append(Particle(initial,self.inertia))
+            swarm.append(Particle(initial,self.inertia,self.constriction))
 
         # begin optimization loop
         for i in range(self.maxiter):
