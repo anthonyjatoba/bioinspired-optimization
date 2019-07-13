@@ -14,7 +14,7 @@ def bin_to_float(binary):
 
 
 class GA:
-    def __init__(self, fun, bounds, generations=100, pop_size=50, cx_prob=.85, cx_strategy='one-point', mt_prob=0.003, sel_strategy='elitist'):
+    def __init__(self, fun, bounds, generations=100, pop_size=50, cx_prob=.85, cx_strategy='one-point', mt_prob=0, sel_strategy='elitist'):
         self.generations = generations      # Number of generations
         self.pop_size = pop_size            # Population size
         self.cx_prob = cx_prob              # Probability of two parents procreate
@@ -124,16 +124,8 @@ class GA:
             # Selecting the new population from the old + offpring
             population = self.elitist_selection(population + offspring)
 
-            print("Generation ", g + 1, 'fitness:', population[0]['fitness'])
-
-            # Perform evolutionary operations (mutation, etc.)
-            population = self.mutate(population)
+            if self.mt_prob > 0:
+                # Perform evolutionary operations (mutation, etc.)
+                population = self.mutate(population)
 
         return population[0]['fitness']
-
-
-#if __name__ == "__main__":
-#    bounds = [(-1, 1), (-1, 1), (-1, 1)]
-#    ga = GA(rastringin, bounds, generations=100, pop_size=5)
-#    best = ga.run()
-#    print("Best:", best)
