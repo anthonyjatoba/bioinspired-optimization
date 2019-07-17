@@ -26,7 +26,8 @@ class GA:
 
         if cx_strategy == 'one-point':
             self.cx_strategy = self.one_point_cx
-        # TODO: two-point crossover
+        elif cx_strategy == 'two-point':
+            self.cx_strategy = self.two_point_cx
         
         if sel_strategy == 'roulette':
             self.sel_strategy = self.roulette_selection
@@ -57,8 +58,8 @@ class GA:
             binary_values = textwrap.wrap(ind['chromosome'], 32)
             
             for i in range(len(binary_values)):
-                if binary_values[i][1] == '1' and binary_values[i][2] == '1' and binary_values[i][3] == '1' and
-                binary_values[i][4] == '1' and binary_values[i][5] == '1' and binary_values[i][6] == '1' and
+                if binary_values[i][1] == '1' and binary_values[i][2] == '1' and binary_values[i][3] == '1' and \
+                binary_values[i][4] == '1' and binary_values[i][5] == '1' and binary_values[i][6] == '1' and \
                 binary_values[i][7] == '1' and binary_values[i][8] == '1':
                     v1 = list(binary_values[i])
                     v1[8] = '0'
@@ -88,7 +89,7 @@ class GA:
         ch_len = len(ind1['chromosome'])
 
         # Crossover point
-        point = random.randrange(ch_len)
+        point = random.randrange(1,ch_len)
 
         ch1_chromosome = ind1['chromosome'][0:point] + \
             ind2['chromosome'][point:ch_len]
@@ -102,6 +103,28 @@ class GA:
                   'inv_fitness': -np.inf, 'norm_fitness': -np.inf,
                   'cumulative_fitness': -np.inf, 'chosen': False}
 
+        return child1, child2
+    
+    def two_point_cx(self,ind1,ind2):
+        """ Two Point Crossover """
+        ch_len = len(ind1['chromosome'])
+        #crossover points
+        point1 = random.randrange(1,ch_len)
+        point2 = random.randrange(point1,ch_len)
+        
+        ch1_chromosome = ind1['chromosome'][0:point1] + \
+            ind2['chromosome'][point1:point2] + \
+            ind1['chromosome'][point2:ch_len]
+        ch2_chromosome = ind2['chromosome'][0:point1] + \
+            ind1['chromosome'][point1:point2] + \
+            ind2['chromosome'][point2:ch_len]
+        
+        child1 = {'chromosome': ch1_chromosome, 'fitness': -np.inf,
+                  'inv_fitness': -np.inf, 'norm_fitness': -np.inf, 
+                  'cumulative_fitness': -np.inf, 'chosen': False}
+        child2 = {'chromosome': ch2_chromosome, 'fitness': -np.inf,
+                  'inv_fitness': -np.inf, 'norm_fitness': -np.inf,
+                  'cumulative_fitness': -np.inf, 'chosen': False}
         return child1, child2
 
     def parents_selection(self, population):
