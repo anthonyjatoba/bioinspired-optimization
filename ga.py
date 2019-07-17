@@ -125,8 +125,6 @@ class GA:
         child2 = {'chromosome': ch2_chromosome, 'fitness': -np.inf,
                   'inv_fitness': -np.inf, 'norm_fitness': -np.inf,
                   'cumulative_fitness': -np.inf, 'chosen': False}
-
-
         return child1, child2
 
     def parents_selection(self, population):
