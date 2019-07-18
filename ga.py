@@ -43,15 +43,18 @@ class GA:
 
         binary_values = textwrap.wrap(individual['chromosome'], 32)
         float_values = [bin_to_float(v) for v in binary_values]
-        
+
         for i, val in enumerate(float_values):
-            if val < bounds[i][0]:
-                chromosome += float_to_bin(bounds[i][0])
-            elif val > bounds[i][1]:
-                chromosome += float_to_bin(bounds[i][1])
+            if isnan(val):                
+                value = random.uniform(self.bounds[i][0], self.bounds[i][1])
+                chromosome += float_to_bin(value)
+            elif val < self.bounds[i][0]:
+                chromosome += float_to_bin(self.bounds[i][0])
+            elif val > self.bounds[i][1]:
+                chromosome += float_to_bin(self.bounds[i][1])
             else:
                 chromosome += float_to_bin(val)
-
+       
             individual['chromosome'] = chromosome
 
     def gen_individual(self):
@@ -74,19 +77,9 @@ class GA:
             # Breaks the string into strings of 32 bits (a float binary)
             binary_values = textwrap.wrap(ind['chromosome'], 32)
 
-            for i in range(len(binary_values)):
-                if binary_values[i][1] == '1' and binary_values[i][2] == '1' and binary_values[i][3] == '1' and \
-                        binary_values[i][4] == '1' and binary_values[i][5] == '1' and binary_values[i][6] == '1' and \
-                        binary_values[i][7] == '1' and binary_values[i][8] == '1':
-                    v1 = list(binary_values[i])
-                    v1[8] = '0'
-                    binary_values[i] = ''.join(v1)
-
             # Converts the binaries to floats
             float_values = [bin_to_float(v) for v in binary_values]
             ind['fitness'] = self.fun(float_values)
-            if isnan(ind['fitness']):
-                print(ind)
         return population
 
     def mutate(self, population):
@@ -246,10 +239,3 @@ class GA:
             gen_best_fitnesses.append(population[0]['fitness'])
 
         return population[0]['fitness'], gen_best_fitnesses
-
-
-bounds = [(-5, 5), (-5, 5), (-5, 5)]
-num_gen = 100
-ga_ra = GA(sphere, bounds, generations=num_gen, sel_strategy='random')
-
-ga_ra.run()
