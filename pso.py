@@ -29,7 +29,7 @@ def func1(x):
 
 
 class Particle:
-    def __init__(self, x0, inertia,constriction):
+    def __init__(self, x0, inertia, constriction):
         self.position_i = []          # particle position
         self.velocity_i = []          # particle velocity
         self.pos_best_i = []          # best position individual
@@ -67,13 +67,13 @@ class Particle:
             r2 = random.random()
             vel_cognitive = c1 * r1 * (self.pos_best_i[i] - self.position_i[i])
             if num_neighbors >= 0:
-                vel_social = c2*r2*(self.pos_best_l[i] - self.position_i[i])
+                vel_social = c2 * r2 * (self.pos_best_l[i] - self.position_i[i])
             else:
-                vel_social = c2*r2*(pos_best_g[i] - self.position_i[i])
-            if self.constriction == 1:
-                self.velocity_i[i] = k*(self.velocity_i[i]+vel_cognitive+vel_social)
+                vel_social = c2 * r2 * (pos_best_g[i] - self.position_i[i])
+            if self.constriction:
+                self.velocity_i[i] = k * (self.velocity_i[i] + vel_cognitive+vel_social)
             else:
-                self.velocity_i[i] = w*self.velocity_i[i]+vel_cognitive+vel_social
+                self.velocity_i[i] = w * self.velocity_i[i] + vel_cognitive+vel_social
              
             
     # update the particle position based off new velocity updates
@@ -106,7 +106,7 @@ class Particle:
                 self.pos_best_l = self.neighbors[i]['particle'].position_i
 
 class PSO():
-    def __init__(self, costFunc, bounds, num_particles=50, maxiter=100, num_neighbors=-1,inertia=0.5,constriction=0):
+    def __init__(self, costFunc, bounds, num_particles=50, maxiter=100, num_neighbors=-1, inertia=0.5, constriction=False):
         global num_dimensions
         num_dimensions = len(bounds)
 
