@@ -2,7 +2,7 @@ import struct
 import random
 import textwrap
 import numpy as np
-from random import randint, uniform
+import random
 from math import isnan
 from functions import sphere, rastringin, ackley
 
@@ -16,7 +16,7 @@ def bin_to_float(binary):
 
 
 class GA:
-    def __init__(self, fun, bounds, generations=100, pop_size=50, cx_prob=.85, cx_strategy='one-point', mt_prob=0, sel_strategy='elitist'):
+    def __init__(self, fun, bounds, generations=100, pop_size=50, cx_prob=.85, cx_strategy='two-point', mt_prob=0, sel_strategy='elitist'):
         self.generations = generations      # Number of generations
         self.pop_size = pop_size            # Population size
         self.cx_prob = cx_prob              # Probability of two parents procreate
@@ -26,7 +26,7 @@ class GA:
 
         if cx_strategy == 'one-point':
             self.cx_strategy = self.one_point_cx
-        elif cx_strategy == 'two-point':
+        else:
             self.cx_strategy = self.two_point_cx
         
         if sel_strategy == 'roulette':
@@ -35,7 +35,6 @@ class GA:
             self.sel_strategy = self.random_selection
         else:
             self.sel_strategy = self.elitist_selection
-        # TODO: roulette, random
 
     def gen_individual(self):
         """ Generates an individual binary string chromossome respecting the problem boundaries """
@@ -154,7 +153,7 @@ class GA:
             individual['cumulative_fitness'] = cumulative_fitness
         
         while len(new_population) != self.pop_size:
-            rand = uniform(0, 1)
+            rand = random.uniform(0, 1)
             for individual in population:
                 if rand <= individual['cumulative_fitness']:
                     if not individual['chosen']:
@@ -168,11 +167,11 @@ class GA:
         new_population = []
         
         while len(new_population) != self.pop_size:
-            rand = randint(0, len(population) - 1)
+            rand = random.randint(0, len(population) - 1)
             if not population[rand]['chosen']:
                 new_population.append(population[rand])
                 population[rand]['chosen'] = True
-       
+
         return new_population
 
     def crossover(self, population):
@@ -201,7 +200,7 @@ class GA:
         
         # Sorts initial population
         population = self.sort_pop(population)
-            
+                    
         for g in range(self.generations):
             # Generating the offspring
             offspring = self.crossover(population)
@@ -216,9 +215,6 @@ class GA:
             if self.mt_prob > 0:
                 # Perform evolutionary operations (mutation, etc.)
                 population = self.mutate(population)
-            
-            # Calculate the fitness for each individual
-            self.evaluate(population)
             
             # Sorts population
             population = self.sort_pop(population)
