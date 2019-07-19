@@ -71,7 +71,7 @@ class Particle:
             else:
                 vel_social = c2 * r2 * (pos_best_g[i] - self.position_i[i])
             if self.constriction:
-                self.velocity_i[i] = k * (self.velocity_i[i] + vel_cognitive+vel_social)
+                self.velocity_i[i] = k * (self.velocity_i[i] + vel_cognitive + vel_social)
             else:
                 self.velocity_i[i] = w * self.velocity_i[i] + vel_cognitive+vel_social
              
