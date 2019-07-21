@@ -4,16 +4,16 @@ This is the first project of the Bioinspired Optimization class given by Profess
 
 Students:
 * [Anthony Jatobá](https://github.com/anthonyjatoba/)
-* [Igor Theotônio](https://github.com/igortheotonio/)
 * [Eduardo Moraes](https://github.com/dudummv/)
+* [Igor Theotônio](https://github.com/igortheotonio/)
 
 ## Particle Swarm Optimization
 
-The analysis can be seen in [Particle Swarm Optimization Notebook](https://github.com/anthonyjatoba/biopt/blob/master/PSO.ipynb)
+The analysis can be seen in [Particle Swarm Optimization Notebook](https://github.com/anthonyjatoba/bioinspired-optimization/blob/master/PSO.ipynb)
 
 ## Genetic Algorithm
 
-The analysis can be seen in [Genetic Algorithm Notebook](https://github.com/anthonyjatoba/biopt/blob/master/GA.ipynb)
+The analysis can be seen in [Genetic Algorithm Notebook](https://github.com/anthonyjatoba/bioinspired-optimization/blob/master/GA.ipynb)
 
 ### How to set up the environment for the first time
 
