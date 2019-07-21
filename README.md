@@ -15,7 +15,7 @@ The analysis can be seen in [Particle Swarm Optimization Notebook](https://githu
 
 The analysis can be seen in [Genetic Algorithm Notebook](https://github.com/anthonyjatoba/biopt/blob/master/GA.ipynb)
 
-## How to set the environment for the first time
+### How to set up the environment for the first time
 
 Install `pip` and `virtualenv`:
 
@@ -36,6 +36,7 @@ Create a virtual environment within the project directory:
 Install the required dependencies:
 
 `source env/bin/activate`
+
 `pip install -r requirements.txt`
 
 And run Jupyter Notebook:
